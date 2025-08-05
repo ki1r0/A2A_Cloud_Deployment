@@ -5,8 +5,8 @@ import click
 import uvicorn
 
 from a2a.server.apps import A2AStarletteApplication
+from a2a.server.tasks import InMemoryTaskStore
 from a2a.server.request_handlers import DefaultRequestHandler
-from db_task_store import DBTaskStore
 from a2a.types import (
     AgentCapabilities,
     AgentCard,
@@ -73,7 +73,7 @@ def main(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT):
     agent_executor = WeatherExecutor(runner, agent_card)
 
     request_handler = DefaultRequestHandler(
-        agent_executor=agent_executor, task_store=DBTaskStore("tasks.db")
+        agent_executor=agent_executor, task_store=InMemoryTaskStore()
     )
 
     a2a_app = A2AStarletteApplication(

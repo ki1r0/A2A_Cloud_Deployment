@@ -3,7 +3,6 @@ from google.adk.agents import LlmAgent
 from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset
 from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
 
-# from weather_tools import get_forecast_by_city, get_forecast
 def create_weather_agent() -> LlmAgent:
     """Constructs the ADK agent."""
     return LlmAgent(

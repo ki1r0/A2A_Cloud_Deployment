@@ -22,7 +22,7 @@ from pprint import pformat
 
 import gradio as gr
 
-from agents.airbnb_planner_multiagent.host_agent.routing_agent import (
+from routing_agent import (
     root_agent as routing_agent,
 )
 from google.adk.events import Event

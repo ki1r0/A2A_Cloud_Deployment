@@ -24,7 +24,7 @@ from a2a.types import (
     Task,
     TaskState,
 )
-from agents.airbnb_planner_multiagent.host_agent.remote_agent_connection import (
+from remote_agent_connection import (
     RemoteAgentConnections,
     TaskUpdateCallback,
 )
@@ -292,7 +292,16 @@ class RoutingAgent:
         agent_task_info = state['agent_tasks'].get(agent_name_key, {})
 
         task_id = agent_task_info.get('task_id')
-        context_id = agent_task_info.get('context_id') or str(uuid.uuid4())
+        task_status = agent_task_info.get('status')
+
+        # If a task exists and is marked as complete, we should start a new task
+        # by resetting the task_id.
+        if task_id and task_status == TaskState.completed:
+            task_id = None
+            # Also reset context_id to ensure a fresh context for the new task.
+            context_id = str(uuid.uuid4())
+        else:
+            context_id = agent_task_info.get('context_id') or str(uuid.uuid4())
 
         message_id = ''
         metadata = {}
@@ -349,7 +358,8 @@ class RoutingAgent:
             # Save the task and context IDs for this specific agent
             state['agent_tasks'][agent_name_key] = {
                 'task_id': send_response.root.result.id,
-                'context_id': send_response.root.result.contextId
+                'context_id': send_response.root.result.context_id,
+                'status': send_response.root.result.status.state,
             }
 
             artifacts = send_response.root.result.artifacts or []

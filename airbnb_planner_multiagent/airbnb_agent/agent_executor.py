@@ -49,12 +49,12 @@ class AirbnbAgentExecutor(AgentExecutor):
             await event_queue.enqueue_event(task)
 
         # invoke the underlying agent, using streaming results
-        async for event in self.agent.stream(query, task.contextId):
+        async for event in self.agent.stream(query, task.context_id):
             if event['is_task_complete']:
                 await event_queue.enqueue_event(
                     TaskArtifactUpdateEvent(
                         append=False,
-                        contextId=task.contextId,
+                        contextId=task.context_id,
                         taskId=task.id,
                         lastChunk=True,
                         artifact=new_text_artifact(
@@ -68,7 +68,7 @@ class AirbnbAgentExecutor(AgentExecutor):
                     TaskStatusUpdateEvent(
                         status=TaskStatus(state=TaskState.completed),
                         final=True,
-                        contextId=task.contextId,
+                        contextId=task.context_id,
                         taskId=task.id,
                     )
                 )
@@ -79,12 +79,12 @@ class AirbnbAgentExecutor(AgentExecutor):
                             state=TaskState.input_required,
                             message=new_agent_text_message(
                                 event['content'],
-                                task.contextId,
+                                task.context_id,
                                 task.id,
                             ),
                         ),
                         final=True,
-                        contextId=task.contextId,
+                        contextId=task.context_id,
                         taskId=task.id,
                     )
                 )
@@ -95,12 +95,12 @@ class AirbnbAgentExecutor(AgentExecutor):
                             state=TaskState.working,
                             message=new_agent_text_message(
                                 event['content'],
-                                task.contextId,
+                                task.context_id,
                                 task.id,
                             ),
                         ),
                         final=False,
-                        contextId=task.contextId,
+                        contextId=task.context_id,
                         taskId=task.id,
                     )
                 )
