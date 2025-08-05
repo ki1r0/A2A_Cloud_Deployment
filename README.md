@@ -23,39 +23,36 @@ This guide provides a detailed, step-by-step workflow for deploying a remote age
 
 ## Part 1: Deploying the Remote Agents to Google Cloud Run
 
-This part covers deploying the `weather_agent` and `airbnb_agent` as serverless applications on Google Cloud Run.
+This part covers deploying the `weather_agent` and `airbnb_agent` as serverless applications on Google Cloud Run using Google Cloud Shell
 
 ### Step 1: Configure Remote Agent Environment Files
 
 Before deploying, you must configure the environment variables for each remote agent.
 
-1.  **Navigate to the `airbnb_agent` directory:**
+1.  **Upload the folder on to Google Cloud Shell**
+2.  **Navigate to the `airbnb_agent` directory:**
     ```bash
     cd airbnb_planner_multiagent/airbnb_agent
     ```
-2.  **Create and configure the `.env` file:** 
+3.  **Create and configure the `.env` file:** 
     Copy the contents of `.env.example` to a new file named `.env` and add your `GOOGLE_API_KEY`.
 
 ### Step 2: Build the Container Images
 
 For each remote agent, you will build a Docker image and push it to the Google Artifact Registry.
 
-1.  **Navigate to the agent's directory:**
-    ```bash
-    cd airbnb_planner_multiagent/airbnb_agent
-    ```
-2.  **(Optional) Test the build locally:**
+1.  **(Optional) Test the build locally:**
     ```bash
     docker build -t airbnb_agent .
     ```
 
-3. **Example `gcloud builds submit` command:**
+2. **Example `gcloud builds submit` command:**
     You can build your container image using GCP's Cloud Build service. This command packages your code from a specified source directory, sends it to Cloud Build, which builds the image and pushes it to your Artifact Registry.
     ```bash
     gcloud builds submit [SOURCE_DIRECTORY] --tag [REGION]-docker.pkg.dev/[PROJECT_ID]/[REPOSITORY_NAME]/[IMAGE_NAME]:[TAG]
     ```
 
-    **Based on the provided example:**
+    **For example:**
     ```bash
     gcloud builds submit airbnb_planner_multiagent/airbnb_agent 
     --tag asia-southeast1-docker.pkg.dev/prj-lta-sandbox-prd-ext-00123/airbnb-agent-repo/airbnb-agent
@@ -82,12 +79,12 @@ Now, deploy the container images as services on Cloud Run.
 
     **Based on the provided example:**
     ```bash
-    gcloud run deploy airbnb-agent \
-    --image=asia-southeast1-docker.pkg.dev/prj-lta-sandbox-prd-ext-00123/airbnb-agent-repo/airbnb-agent:latest \
-    --memory 1Gi \
-    --region=asia-southeast1 \
+    gcloud run deploy airbnb-agent
+    --image=asia-southeast1-docker.pkg.dev/prj-lta-sandbox-prd-ext-00123/airbnb-agent-repo/airbnb-agent:latest
+    --memory 1Gi
+    --region=asia-southeast1
     --platform=managed
-    
+    ```
 3.  **Take note of the service URL** provided in the output. You will need it for the host agent's configuration.
 
 ### Step 4: Repeat step 1 to 3 for weather agent
@@ -102,12 +99,12 @@ After deploying the remote agents, you can run the `host_agent` locally to inter
 
 1.  **Navigate to the project root directory:**
     ```bash
-    cd /path/to/A2A_Cloud_Deployment
+    cd A2A_Cloud_Deployment
     ```
 2.  **Create and activate the virtual environment:**
     ```bash
     uv venv
-    source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
+    .venv\Scripts\activate  # On macOS/Linux, use `source .venv/bin/activate`
     ```
 
 ### Step 2: Configure the Host Agent Environment File
@@ -127,16 +124,30 @@ After deploying the remote agents, you can run the `host_agent` locally to inter
     ```bash
     cd airbnb_planner_multiagent/host_agent
     ```
-2.  **Run the host agent:**
+2.  **Login in Google Cloud for token generation:**
+    ```bash
+    gcloud auth login
+    ```
+3.  **Run the host agent:**
     ```bash
     uv run .
     ```
     if the packages are not installed properly, consider manual installation using uv at project root
     ```bash
-    uv pip install -r pyproject.toml
+    uv sync
     ```
+4.  **Troubleshooting:**
+    *   In the case of an error message saying that `gcloud.cmd` is not found, you can try `gcloud` instead (this is common for mac users). For more detail, refer to point 1 "Connecting from a Host Agent (Primary Method)" under method 3 in section 1 in the post-deployment section. 
 
-You can now interact with the host agent, which will delegate tasks to your remote agents running on Google Cloud Run.
+### Step 4: Test at the UI
+
+Here are example questions:
+
+- "Tell me about weather in Houston, Texas"  
+
+- "Please find a room in Tokyo, Japan, August 20-25, 2025, two adults"
+
+- "Please find a room in Los Angeles, California, August 20-25, 2025, two adults, Tell me about the current weather there as well."
 
 ---
 
