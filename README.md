@@ -338,6 +338,7 @@ The correct workflow is to let the server generate the `taskId` on the first req
 4.  **Task Completion:** Once a task is finished (e.g., the user's request is fully answered), the `host_agent`'s logic resets the `taskId` to `None` for the next interaction with that agent. This ensures that a new, unrelated request starts a fresh task instead of incorrectly reusing a completed one.    
 
 By ensuring the `taskId` is `None` for the first request, you align with the server's expected behavior and ensure a new task is created correctly.
+However, current approach seems to fail when you continue to work with the same agent when the task is completed. Please refer to https://github.com/a2aproject/a2a-samples/issues/304 for the latest update on this issue. 
 
 ### 4. Using Vertex AI
 
